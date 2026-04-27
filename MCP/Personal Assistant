@@ -1,0 +1,359 @@
+{
+  "name": "Personal Assistant",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -768,
+        -160
+      ],
+      "id": "f6cf947c-8729-4948-8090-cfa47a8bcb8e",
+      "name": "Telegram Trigger",
+      "webhookId": "78ce2732-69b3-4333-9d7d-eaad8be4f274",
+      "credentials": {
+        "telegramApi": {
+          "id": "MYGAyUmm4Uik198l",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Telegram Trigger').item.json.message.chat.id }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -288,
+        80
+      ],
+      "id": "315dcec0-99eb-44be-9038-a5160f69ce10",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "=We are facing troubles in providing a response right now. Please try again later.",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        528,
+        -160
+      ],
+      "id": "029c406c-5b2f-4b22-bd1f-a433d27a1ca8",
+      "name": "Send Error Message",
+      "webhookId": "da0220ba-564d-4b9e-a96d-ba84ff375069",
+      "credentials": {
+        "telegramApi": {
+          "id": "MYGAyUmm4Uik198l",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        304,
+        -160
+      ],
+      "id": "d984164d-67ad-4b20-8cf0-a60457bc4e2f",
+      "name": "Send Message",
+      "webhookId": "1e8bafbb-10d5-47d3-bacf-669a62e4189f",
+      "credentials": {
+        "telegramApi": {
+          "id": "MYGAyUmm4Uik198l",
+          "name": "Telegram account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "endpointUrl": "https://scannable-unpropitiously-armand.ngrok-free.dev/mcp/a3877ddc-282b-4622-9bdf-b7e0c1d6fe64",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1.2,
+      "position": [
+        -160,
+        80
+      ],
+      "id": "8f5ed82c-d6cf-463a-86bd-6fb38292f944",
+      "name": "Google Calender"
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-oss-120b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        -544,
+        80
+      ],
+      "id": "4b064e88-f9bc-4707-b3a3-9067ffa708bd",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "AG6LguNNVT57IZsq",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "endpointUrl": "https://mcp.context7.com/mcp",
+        "authentication": "headerAuth",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1.2,
+      "position": [
+        -32,
+        80
+      ],
+      "id": "d6524fa1-c974-4202-b344-7e64fdf6dc85",
+      "name": "Context7",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "UaIpZBP8vzEkLL6G",
+          "name": "Context7"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "endpointUrl": "https://scannable-unpropitiously-armand.ngrok-free.dev/mcp/c424f218-8925-40a8-b9cc-ea4c44e290b9",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1.2,
+      "position": [
+        96,
+        80
+      ],
+      "id": "0041127e-c356-4960-8dde-a1797b9027df",
+      "name": "Google Sheet"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message.text }} - Today's date and time: {{ $now.setZone('Asia/Dhaka') }}",
+        "needsFallback": true,
+        "options": {
+          "systemMessage": "=You are a helpful assistant named Troy. You can perform the following tasks:\n1. Google Calendar Management: Create, update, delete, and retrieve calendar events using the Google Calender MCP.\n2. Google Sheets Logging: Add, update, and retrieve records using the Google Sheet MCP.\n3. Documentation Enrichment: Fetch updated package documentation using the Context7 MCP.\n\nImportant Instructions:\n- CRITICAL: Before creating any calendar event, ALWAYS check for scheduling conflicts:\n  1. Use the GetAll calendar tool to retrieve existing events for the requested time period.\n  2. Compare the requested time slot against existing events.\n  3. Allow a 1-minute buffer between events — that is, events ending at 8:00 PM and starting at 8:00 PM (or within 1 minute) do not conflict.\n  4. If a conflict is found, inform the user with the details of the existing event and ask if they want to:\n     - Reschedule the new meeting to a different time\n     - Cancel or move the existing meeting\n     - Schedule anyway (double-book)\n  5. Only create the new event after confirming there is no conflict, or if the user agrees to double-book.\n- Choose the correct creation method for calendar events:\n  - Use standard calendar creation for one-time events.\n  - Use weekly_repeat_create only when the user explicitly mentions terms like \"weekly\", \"every week\", or similar recurring weekly patterns.\n  - Use the appropriate variant of the tool depending on the number of attendees:\n    - If the event is a single time use the required tool followed by the number of attendees.\n    - If the event is recurring weekly, use the required weekly tool followed by the number of attendees.\n- While sending attendee data to the tool, separate attendee names by commas.\n- Analyze the user’s request carefully to determine which tools to use based on time, recurrence, and number of attendees.\n\nGoogle Sheet Logging Rules:\n- Every calendar event created, updated, or retrieved must also be logged in Google Sheet.\n- Use the following column names strictly:\n  title, frequency, start, end, attendees, description\n- Map data as:\n  - title → Event title\n  - frequency → \"once\" for single events, \"weekly\" for recurring weekly events\n  - start → Event start datetime (Bangladesh timezone)\n  - end → Event end datetime (Bangladesh timezone)\n  - attendees → Comma-separated attendee names\n  - description → Event description\n- If the description contains \"langchain\" or \"node.js\":\n  1. Call Context7 MCP.\n  2. Fetch the latest documentation summary.\n  3. Append the summary to the description before inserting/updating in Google Sheet.\n- If no keywords are found, keep the description exactly as provided.\n\nTool Usage Rules:\n- Use MCP client tool names strictly as:\n  - Google Calender\n  - Google Sheet\n  - Context7\n- Do not invent tool names.\n- Always use Bangladesh Standard Time (Asia/Dhaka) when creating events.\n\nSpecial Commands:\n- If the user writes /start, welcome them and explain your capabilities as Captain Levi, their personal assistant.\n\nCurrent Context:\n  - Today's date and time: {{ $now.setZone('Asia/Dhaka') }}\n  - Timezone: Asia/Dhaka (Bangladesh Standard Time)\n  - Always use Bangladesh time format when creating events.\n\n- If the user greets, answer gracefully.\n\nOutput Instructions:\n- Format response in telegram-compatible text format.\n\nExamples:\n- \"Schedule a meeting tomorrow at 3 pm\"\n  → Check for conflicts at 3 pm tomorrow.\n  → If clear, create the event using the appropriate single-time tool.\n  → If not, suggest alternatives.\n\n- \"Set up a weekly team meeting every Monday at 10am\".\n  → Check for conflicts on Mondays at 10am.\n  → If no conflict, use weekly_repeat_create (small group variant if attendees ≤ 3).\n  → If conflict, suggest a new time."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -304,
+        -160
+      ],
+      "id": "95a9bd13-920f-4d94-ba10-06274ec6f496",
+      "name": "AI Agent1",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -416,
+        80
+      ],
+      "id": "7b9921b8-590a-4672-9fa1-11837baba5b8",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "IpLMhsykxTw40I7A",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "# Main Agent Workflow\n- Steps:\n  1. Create new workflow in n8n\n  2. Add Telegram Trigger node\n  3. Add AI Agent node\n  4. Add MCP Client tools:\n     - Google Calender → endpoint from MCP server of Calender workflow\n     - Google Sheet →  endpoint from MCP server of Sheet workflow\n     - Context7 → remote endpoint",
+        "height": 288,
+        "width": 480
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -112,
+        -416
+      ],
+      "typeVersion": 1,
+      "id": "0becbeae-2177-42f1-8a5a-2cb1ce5606d7",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "# Use Case\n\n- Takes input from the user via Telegram\n- Checks for calendar conflicts using Google Calender MCP.\n- Creates/updates the event and logs it in Google Sheet (columns: title, frequency, start, end, attendees, description).\n- If the description contains keywords \"langchain\" or \"node.js\", fetches documentation summary from Context7 remote MCP client tool and appends it to the log. \n- If the description does not contains keywords \"langchain\" or \"node.js\" then it it adds as it is \n- Returns a confirmation message to the user in Telegram and ensures no infinite loops occur.\n\nSample Input: -->\nCreate Event:\nTitle: Special\nAttendees:2\nreq freq: weekly\nstart:10PM\nend:11PM\ndescription:Langchain\n\nThen Provide attendees email. Then Provide Day for recurring event(Monday,Tuesday)\n",
+        "height": 480,
+        "width": 688
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -992,
+        -640
+      ],
+      "typeVersion": 1,
+      "id": "2e1e0297-4738-4930-8e94-15d4ddcbfd5c",
+      "name": "Sticky Note1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Message": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Send Error Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Calender": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Context7": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheet": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "Send Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "timezone": "Asia/Dhaka",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "504531ef-7e55-4e7e-aef6-9b32bf035ea7",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "574b9c83125ceee43826b2c8ff2e9c3b344bef6dd0ea5b451e3789ea4539d04c"
+  },
+  "id": "DUxrKszLpxLy0VdT",
+  "tags": [
+    {
+      "updatedAt": "2026-01-28T15:36:08.946Z",
+      "createdAt": "2026-01-28T15:36:08.946Z",
+      "id": "eHuBVytylq44VyCu",
+      "name": "MCP"
+    },
+    {
+      "updatedAt": "2026-01-01T19:53:19.024Z",
+      "createdAt": "2026-01-01T19:53:19.024Z",
+      "id": "gCFYFcDtHCfhjyGW",
+      "name": "ostad_assignment"
+    }
+  ]
+}
