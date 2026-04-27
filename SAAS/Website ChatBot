@@ -1,0 +1,405 @@
+{
+  "name": "Company RAG System",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.body.message ?? $json.message ?? $json.chatInput ?? $json.body.chatInput }}",
+        "needsFallback": true,
+        "options": {
+          "systemMessage": "=You are a helpful AI assistant with access to a Qdrant knowledge base.\n\nDecision Rule — Before every response, classify the user's message:\n- If it is a greeting, farewell, or small talk (e.g. \"hi\", \"hello\", \"thanks\", \"bye\", \"how are you\") → reply naturally, do NOT query Qdrant.\n- If the user wants to talk directly, speak with someone, contact a person, or requests human assistance → follow the DIRECT CONTACT FLOW below.\n- For all other messages → query Qdrant first, then respond using only what was retrieved.\n\n---\n## DIRECT CONTACT FLOW\n\nSTEP 1 — Ask for contact number:\nReply exactly:\nSure! Please share your contact number so we can connect you.\n\nSTEP 2 — Once user provides a number:\nCall the Telegram tool with the message:\n\"A user wants to talk directly. Their contact number is: [number]\"\n\nSTEP 3 — Confirm to user:\nReply exactly:\nGot it! We've notified our team. Someone will reach out to you shortly.\n\n---\n\nKnowledge Rules:\n1. Base your answers strictly on information retrieved from Qdrant.\n2. Never add assumptions, opinions, or knowledge from outside Qdrant.\n3. If Qdrant returns no relevant result, say exactly: \"Sorry, I don't have information on that topic.\"\n4. Keep answers concise, clear, and complete.\n\nFormat Rules:\n1. Plain text only — no markdown, no JSON, no special formatting.\n2. Use numbered points only when listing multiple distinct items."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        400,
+        16
+      ],
+      "id": "d5357b03-0653-4de1-b430-91fbee37794e",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "Retrieve relevant information from the data.",
+        "qdrantCollection": {
+          "__rl": true,
+          "value": "n8n-batch",
+          "mode": "list",
+          "cachedResultName": "n8n-batch"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreQdrant",
+      "typeVersion": 1.3,
+      "position": [
+        752,
+        224
+      ],
+      "id": "b71168a2-7cb3-4478-aa14-5d1eb1a411aa",
+      "name": "Qdrant Vector Store",
+      "credentials": {
+        "qdrantApi": {
+          "id": "jEX8UxX6MXeCdmTx",
+          "name": "QdrantApi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-embedding-001"
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        640,
+        464
+      ],
+      "id": "db9530a3-3daa-401b-bcf8-bc79a4439063",
+      "name": "Embeddings Google Gemini",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "IpLMhsykxTw40I7A",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "llama-3.3-70b-versatile",
+        "options": {
+          "temperature": 0.1
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        64,
+        240
+      ],
+      "id": "e60be46e-6005-4ed8-9c3d-9f2b0737e1d7",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "AG6LguNNVT57IZsq",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Webhook').item.json.headers['x-forwarded-for'] }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        496,
+        224
+      ],
+      "id": "c7321546-cbea-46b2-a6f5-c0bcb0dd90ce",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        288,
+        384
+      ],
+      "id": "297d9b28-e272-46a6-9ca2-ebbdf9a52d93",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "IpLMhsykxTw40I7A",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "This node starts the workflow whenever a new chat message is received from the user through website.",
+        "width": 320,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -96,
+        -48
+      ],
+      "id": "0c6a3e82-0c6f-43c9-a524-0b10e3d253bc",
+      "name": "Note: Chat Trigger"
+    },
+    {
+      "parameters": {
+        "content": "This AI agent controls the conversation flow. It enforces rules to always query Qdrant first and only answer using retrieved knowledge.",
+        "width": 448,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        304,
+        -48
+      ],
+      "id": "d9903cec-1918-487d-80be-179e2df5a83e",
+      "name": "Note: AI Agent"
+    },
+    {
+      "parameters": {
+        "content": "This node retrieves relevant vectors from the Qdrant collection and exposes the search as a tool for the AI agent.",
+        "width": 336,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        704,
+        160
+      ],
+      "id": "348cd37f-8cd3-4ea9-8ba9-66d14c855c50",
+      "name": "Note: Qdrant Vector Store"
+    },
+    {
+      "parameters": {
+        "content": "This node converts the incoming user query into embeddings so it can be matched against vectors stored in Qdrant.",
+        "height": 240,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        512,
+        352
+      ],
+      "id": "fe1caa2c-c50c-48ed-a80a-117dfb1387ea",
+      "name": "Note: Embeddings"
+    },
+    {
+      "parameters": {
+        "content": "This language model generates the final answer using the retrieved Qdrant context and the agent instructions.",
+        "width": 320,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -48,
+        160
+      ],
+      "id": "b9754ad8-cc81-4270-8194-54b3707c2276",
+      "name": "Note: Groq Chat Model"
+    },
+    {
+      "parameters": {
+        "content": "This node stores short-term conversation history so the agent can maintain context across messages.",
+        "width": 384,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        288,
+        160
+      ],
+      "id": "bcec107e-5245-4283-b71d-64428db7c8b3",
+      "name": "Note: Memory"
+    },
+    {
+      "parameters": {
+        "content": "This is an alternative language model available to the agent as a secondary response option.",
+        "width": 336,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        96,
+        352
+      ],
+      "id": "1ffc95a4-ef57-4d15-a663-9649f110b988",
+      "name": "Note: Gemini Chat Model"
+    },
+    {
+      "parameters": {
+        "content": "## Details\n\n#### This workflow implements a Retrieval-Augmented Generation system. A chat message triggers an AI agent which always queries a Qdrant vector database for relevant information. The retrieved data is then used by the language model to generate a response. If no relevant data is found, the system replies that it does not know the answer.",
+        "height": 208,
+        "width": 832,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -48,
+        -304
+      ],
+      "id": "6b1570e8-5cf8-45b0-a252-c3159272693b",
+      "name": "Note: Whole Workflow"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "5a62ee7b-58b7-417a-908d-bd73cc4a342e",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        16,
+        16
+      ],
+      "id": "807b9d8f-f6d4-4d0a-ae93-c76a6f4198da",
+      "name": "Webhook",
+      "webhookId": "5a62ee7b-58b7-417a-908d-bd73cc4a342e"
+    },
+    {
+      "parameters": {
+        "chatId": "1153426888",
+        "text": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Text', ``, 'string') }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegramTool",
+      "typeVersion": 1.2,
+      "position": [
+        624,
+        224
+      ],
+      "id": "3c15607c-517a-4f8b-bdce-4d86efa053dc",
+      "name": "Send a text message in Telegram",
+      "webhookId": "d58e63a2-effd-4c75-9516-81ca0942c880",
+      "credentials": {
+        "telegramApi": {
+          "id": "MYGAyUmm4Uik198l",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Qdrant Vector Store": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Google Gemini": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Qdrant Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        []
+      ]
+    },
+    "Send a text message in Telegram": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": "L1wrhjYVQVFS3brV"
+  },
+  "versionId": "916e89d7-1c16-48ac-80dd-9d591a6e2ce2",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "574b9c83125ceee43826b2c8ff2e9c3b344bef6dd0ea5b451e3789ea4539d04c"
+  },
+  "id": "oKyMe9RaYhBqxBsr",
+  "tags": [
+    {
+      "updatedAt": "2026-04-16T09:27:41.522Z",
+      "createdAt": "2026-04-16T09:27:41.522Z",
+      "id": "2XEqZzfeTvEar0a2",
+      "name": "RAG"
+    },
+    {
+      "updatedAt": "2026-04-16T18:01:48.441Z",
+      "createdAt": "2026-04-16T18:01:48.441Z",
+      "id": "2ZeI46GZZCJXNaeh",
+      "name": "SAAS Project"
+    },
+    {
+      "updatedAt": "2026-01-01T19:53:19.024Z",
+      "createdAt": "2026-01-01T19:53:19.024Z",
+      "id": "gCFYFcDtHCfhjyGW",
+      "name": "ostad_assignment"
+    }
+  ]
+}
