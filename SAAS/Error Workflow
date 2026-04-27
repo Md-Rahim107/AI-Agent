@@ -1,0 +1,166 @@
+{
+  "name": "Error Workflow of GadgetGrid",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        -192,
+        -112
+      ],
+      "id": "fcc9b385-d795-43ad-9b47-f95a73cfe786",
+      "name": "Error Trigger"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "17QZreTu8RPjqkGRPsKDFw7z5RDGrA84u-7c75qQKrmY",
+          "mode": "list",
+          "cachedResultName": "GadgetGrid Order",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17QZreTu8RPjqkGRPsKDFw7z5RDGrA84u-7c75qQKrmY/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 510983034,
+          "mode": "list",
+          "cachedResultName": "Sheet2",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1noi5lCM9xPXC2l_n9RwFsFFyfORIyNfm0AJ_3laPwdQ/edit#gid=510983034"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Error Message": "={{ $json.execution.error.message }}",
+            "Error Url": "={{ $json.execution.url }}",
+            "StackTrace": "={{ $json.execution.error.stack }}",
+            "wrokflow name": "={{ $json.workflow.name }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Error Message",
+              "displayName": "Error Message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Error Url",
+              "displayName": "Error Url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "StackTrace",
+              "displayName": "StackTrace",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "wrokflow name",
+              "displayName": "wrokflow name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        32,
+        -112
+      ],
+      "id": "ff59821b-ccca-4ae4-b649-cb153223b727",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "nsdEGh1TxmRsglWT",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "1153426888",
+        "text": "={{ $json[\"wrokflow name\"] }}\n{{ $json[\"Error Message\"] }}\n{{ $json[\"Error Url\"] }}\n{{ $json.StackTrace }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        256,
+        -112
+      ],
+      "id": "069017aa-0935-4da4-acd2-5e93e7c8a134",
+      "name": "Send a text message",
+      "webhookId": "c50a685f-67b5-4587-a9c7-985fb7e626e5",
+      "credentials": {
+        "telegramApi": {
+          "id": "MYGAyUmm4Uik198l",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "f34ca0e6-096b-4c86-aa2b-dd9cd35f5edb",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "574b9c83125ceee43826b2c8ff2e9c3b344bef6dd0ea5b451e3789ea4539d04c"
+  },
+  "id": "L1wrhjYVQVFS3brV",
+  "tags": [
+    {
+      "updatedAt": "2026-04-16T18:01:48.441Z",
+      "createdAt": "2026-04-16T18:01:48.441Z",
+      "id": "2ZeI46GZZCJXNaeh",
+      "name": "SAAS Project"
+    }
+  ]
+}
