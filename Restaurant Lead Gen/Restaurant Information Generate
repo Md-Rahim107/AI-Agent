@@ -1,0 +1,517 @@
+{
+  "name": "Restaurant Information Store",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -176,
+        224
+      ],
+      "id": "806b3af3-6dd9-48b6-8d1f-ec37df242fd2",
+      "name": "When chat message received",
+      "webhookId": "1762272b-f9fa-4244-80b6-84305f7ed1cd"
+    },
+    {
+      "parameters": {
+        "hasOutputParser": true,
+        "needsFallback": true,
+        "options": {
+          "systemMessage": "=You are an AI automation agent.\n\nCHAT INTERACTION (NEW):\nWhen the workflow starts, ask the customer:\n\"Which place’s restaurants do you want to store?\"\nWait for the customer’s reply.\nUse the customer-provided place name as the search query for the Google Serper HTTP node.\n\nCRITICAL INSTRUCTION:\nYou MUST call the Google Sheets tool to append rows.\nDo NOT return data without calling the tool.\n\nTASK:\n1. Read Google Serper search results from the HTTP node.\n2. Identify restaurants from the results.\n3. Append the extracted data to Google Sheets using the Google Sheets tool.\n\nRULES:\n1. Prioritize restaurants with high ratings (4.0 or above).\n2. If high-rated restaurants are unavailable, include other restaurants.\n3. Extract only real, verifiable information present in the search results.\n4. If any field is missing or unavailable, use an empty string \"\".\n5. Use double quotes for all keys and string values.\n6. No trailing commas.\n7. Use proper array [ ... ] or object { ... } structure.\n8. Do NOT wrap the output in a string. Return actual JSON, not a JSON string.\n\nFOR EACH RESTAURANT, EXTRACT:\n- Restaurant Name\n- Ratings\n- Address\n- Opening Hours\n- Website Link\n- Phone Number\n\nGOOGLE SHEETS TOOL USAGE:\n- Action: Append Row(s)\n- Append one row per restaurant\n- Column mapping (exact order):\n  restaurant_name, ratings, address, email, opening_hours, website, phone_number\n\nOUTPUT RULES:\n- After successfully calling the Google Sheets tool, return ONLY a valid JSON array of the appended rows.\n- Each object must exactly match this structure:\n\n{\n  \"restaurant_name\": \"\",\n  \"ratings\": \"\",\n  \"address\": \"\",\n  \"opening_hours\": \"\",\n  \"website\": \"\",\n  \"phone_number\": \"\"\n}\n\nIMPORTANT:\n- Do NOT add explanations.\n- Do NOT add extra fields.\n- Return ONLY a JSON array.\n- Do NOT wrap the array in quotes.\n- Failure to call the Google Sheets tool is an error.\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        272,
+        224
+      ],
+      "id": "bfed3301-cf37-46f4-92ff-aa05b88bb580",
+      "name": "AI Agent",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://google.serper.dev/places",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "q",
+              "value": "=Restaurant in {{ $json.chatInput }}"
+            },
+            {
+              "name": "gl",
+              "value": "bd"
+            },
+            {
+              "name": "hl",
+              "value": "en"
+            },
+            {
+              "name": "num",
+              "value": "5"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.3,
+      "position": [
+        480,
+        656
+      ],
+      "id": "14e8a43b-71db-48bd-831b-46c3a53aa109",
+      "name": "HTTP Request1",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "uPbYAqJms2XmAfyy",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-oss-20b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        -64,
+        656
+      ],
+      "id": "a18e2a20-af26-4ac6-ab86-f699477359fb",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "AG6LguNNVT57IZsq",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        128,
+        640
+      ],
+      "id": "1f89ae10-e4b3-4e91-aa5d-9a5a835faa6f",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "IpLMhsykxTw40I7A",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        288,
+        656
+      ],
+      "id": "0b9d13d4-3279-4012-a4ca-4767f58840a5",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ec5d7f2d-9d02-420e-9a24-44ba99675b88",
+              "name": "output",
+              "value": "={{ typeof $json.output !== \"string\"&&typeof $json.output.message !== \"string\" ? \"Restaurants are added\" : $json.output }}\n",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1056,
+        224
+      ],
+      "id": "9025229f-c62d-450a-b454-e5b418535907",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"restaurant_name\": \"\",\n  \"ratings\": \"\",\n  \"address\": \"\",\n  \"opening_hours\": \"\",\n  \"website\": \"\",\n  \"phone_number\": \"\"\n}",
+        "autoFix": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        768,
+        464
+      ],
+      "id": "54bd4c82-3d9e-421f-bab6-634cd87910e3",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-pro",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        880,
+        640
+      ],
+      "id": "8243717c-cdd8-4ca3-832d-91980173ddd3",
+      "name": "Google Gemini Chat Model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "IpLMhsykxTw40I7A",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1noi5lCM9xPXC2l_n9RwFsFFyfORIyNfm0AJ_3laPwdQ",
+          "mode": "list",
+          "cachedResultName": "Restaurent Lead Gen",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1noi5lCM9xPXC2l_n9RwFsFFyfORIyNfm0AJ_3laPwdQ/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1noi5lCM9xPXC2l_n9RwFsFFyfORIyNfm0AJ_3laPwdQ/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "restaurant_name": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('restaurant_name', ``, 'string') }}",
+            "ratings": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('ratings', ``, 'string') }}",
+            "address": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('address', ``, 'string') }}",
+            "opening_hours": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('opening_hours', ``, 'string') }}",
+            "website": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('website', ``, 'string') }}",
+            "phone_number": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('phone_number', ``, 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "restaurant_name",
+              "displayName": "restaurant_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ratings",
+              "displayName": "ratings",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "address",
+              "displayName": "address",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "opening_hours",
+              "displayName": "opening_hours",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "website",
+              "displayName": "website",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "phone_number",
+              "displayName": "phone_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        672,
+        720
+      ],
+      "id": "e8337af2-e574-4961-8b42-971111343fb7",
+      "name": "Append row in sheet in Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "nsdEGh1TxmRsglWT",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": " Listens for user messages. User types location like 'Dhaka' and this node triggers the workflow.",
+        "height": 288,
+        "width": 272
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -272,
+        80
+      ],
+      "typeVersion": 1,
+      "id": "ee13495a-4bb0-4365-ba73-3d200fbe6064",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "Orchestrates entire process. Receives user input, calls Google Serper to search, reads results, extracts restaurant data, calls Google Sheets tool to save data. Uses Groq and Gemini models. Has retry enabled for reliability.",
+        "height": 272,
+        "width": 544
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        144,
+        64
+      ],
+      "typeVersion": 1,
+      "id": "69ea9542-7324-4ee5-8906-7f4dba319ca8",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": " Sends request to Google Serper API to search for restaurants. Takes user location input and returns 5 restaurant results with ratings, addresses, phone numbers. Used by AI Agent as a tool.",
+        "height": 240,
+        "width": 256
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        384,
+        496
+      ],
+      "typeVersion": 1,
+      "id": "70fe4771-5025-4544-b02b-349dee2eef7b",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "Fast AI model (openai/gpt-oss-20b) used by AI Agent for reasoning and decision-making. Can be selected as primary or fallback model.\n\nGoogle Gemini PaLM API model used by AI Agent as alternative to Groq. Better at following strict instructions for data extraction.",
+        "height": 320,
+        "width": 416
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -144,
+        448
+      ],
+      "typeVersion": 1,
+      "id": "0be1e317-bd49-4a27-bfe0-92400d825450",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "Validates that AI output matches exact JSON schema (6 columns: restaurant_name, ratings, address, opening_hours, website, phone_number). Auto-fixes minor issues and rejects malformed data.",
+        "width": 432
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        624,
+        384
+      ],
+      "typeVersion": 1,
+      "id": "89e9d1f0-86db-42f9-8675-7b5e7ad4a9f4",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "content": "Appends restaurant data rows to Google Sheets. Target sheet 'Restaurent Lead Gen' Sheet1. Used by AI Agent as a tool. Each restaurant becomes one row with 6 columns.",
+        "height": 240,
+        "width": 256
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        624,
+        608
+      ],
+      "typeVersion": 1,
+      "id": "fb98116c-0f2f-4b7c-8a07-3841e90dbf01",
+      "name": "Sticky Note5"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Structured Output Parser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        []
+      ]
+    },
+    "Append row in sheet in Google Sheets": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": "oUwNl3rwuLqqdq5V"
+  },
+  "versionId": "b984dc22-3af7-4dad-802f-787dc02cdea9",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "574b9c83125ceee43826b2c8ff2e9c3b344bef6dd0ea5b451e3789ea4539d04c"
+  },
+  "id": "ODN1dAy1wlrAWlpT",
+  "tags": [
+    {
+      "updatedAt": "2026-01-01T19:53:19.024Z",
+      "createdAt": "2026-01-01T19:53:19.024Z",
+      "id": "gCFYFcDtHCfhjyGW",
+      "name": "ostad_assignment"
+    }
+  ]
+}
