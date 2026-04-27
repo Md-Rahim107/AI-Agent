@@ -36,3 +36,10 @@ Automatically adds orders from the website into Google Sheets.
 Logs failures with full stack traces for monitoring and debugging.
 
 ![Error Workflow](https://github.com/user-attachments/assets/4b6c5699-1d20-4443-bf0a-cbb1fa1f3312)
+
+
+
+
+
+
+
