@@ -1,0 +1,576 @@
+{
+  "name": "Contact List Cleaner",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -560,
+        928
+      ],
+      "id": "c5d4aa1d-2429-45f8-98bf-9eec71246e2e",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1HM-amI6eY0mnfYHndI50qB6S__paMYSUJhnZDNdjwaM",
+          "mode": "list",
+          "cachedResultName": "Contact List Cleaner",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1HM-amI6eY0mnfYHndI50qB6S__paMYSUJhnZDNdjwaM/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1HM-amI6eY0mnfYHndI50qB6S__paMYSUJhnZDNdjwaM/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -368,
+        928
+      ],
+      "id": "8382d433-1633-42b7-9698-931acdc0d0ba",
+      "name": "Get row(s) in sheet1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "qavP5jPfFnGs3OUk",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "compare": "selectedFields",
+        "fieldsToCompare": "email",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.removeDuplicates",
+      "typeVersion": 2,
+      "position": [
+        128,
+        688
+      ],
+      "id": "7a0d2d80-df15-4fee-b2a0-8d3bc2acfebf",
+      "name": "Remove Duplicates1"
+    },
+    {
+      "parameters": {
+        "url": "https://api.emailable.com/v1/verify",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "email",
+              "value": "={{ $json.Email }}"
+            },
+            {
+              "name": "api_key",
+              "value": "live_656d54ae3b00a1d83b5c"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        144,
+        944
+      ],
+      "id": "37014c57-3db5-48ba-8009-b0c461717a04",
+      "name": "HTTP Request1",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "57798f64-8d55-4cab-ac44-839313931dfc",
+              "name": "Name",
+              "value": "={{ $('Get row(s) in sheet1').item.json.Name }}",
+              "type": "string"
+            },
+            {
+              "id": "22d54dd6-123e-415d-abbc-5be7ae26015c",
+              "name": "email",
+              "value": "={{ $json.email }}",
+              "type": "string"
+            },
+            {
+              "id": "0be36689-b66c-4d63-833f-5f807da41e31",
+              "name": "state",
+              "value": "={{ $json.state }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        464,
+        944
+      ],
+      "id": "94449727-5a43-424b-afe3-9282a0d35727",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "operation": "clear",
+        "documentId": {
+          "__rl": true,
+          "value": "1HM-amI6eY0mnfYHndI50qB6S__paMYSUJhnZDNdjwaM",
+          "mode": "list",
+          "cachedResultName": "Contact List Cleaner",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1HM-amI6eY0mnfYHndI50qB6S__paMYSUJhnZDNdjwaM/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1HM-amI6eY0mnfYHndI50qB6S__paMYSUJhnZDNdjwaM/edit#gid=0"
+        },
+        "clear": "specificRange",
+        "range": "A2:F"
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        352,
+        688
+      ],
+      "id": "abef1eb9-7e8c-4f11-8ddf-8e8b199911c8",
+      "name": "Clear sheet1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "qavP5jPfFnGs3OUk",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1HM-amI6eY0mnfYHndI50qB6S__paMYSUJhnZDNdjwaM",
+          "mode": "list",
+          "cachedResultName": "Contact List Cleaner",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1HM-amI6eY0mnfYHndI50qB6S__paMYSUJhnZDNdjwaM/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1HM-amI6eY0mnfYHndI50qB6S__paMYSUJhnZDNdjwaM/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Name": "={{ $('Remove Duplicates1').item.json.Name }}",
+            "Email": "={{ $json.email }}",
+            "Deliverable": "={{ $json.state }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Deliverable",
+              "displayName": "Deliverable",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        592,
+        688
+      ],
+      "id": "d31c6ff0-3fe5-4fbf-95b0-8f00dab30dc8",
+      "name": "Append row in sheet1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "qavP5jPfFnGs3OUk",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "9de5b432-f224-4338-818f-7949bc02dd95",
+              "leftValue": "={{ $json.Deliverable }}",
+              "rightValue": "deliverable",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        816,
+        688
+      ],
+      "id": "0cfc1beb-0739-46cd-82ca-3fde656ce621",
+      "name": "Filter1"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.Email }}",
+        "subject": "Contact List Cleaner",
+        "message": "=Dear {{ $json.Name }},<br><br><br>\n\n\n\nI hope this email finds you well. We are pleased to inform you that your contact information has been successfully verified and updated in our system.<br>\n\nThank you for your patience and cooperation throughout this process.<br><br>\n\nWarm regards,<br>\nMD. Rahim",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1056,
+        688
+      ],
+      "id": "cbb7917f-a157-44fe-a49d-72e9aac631d1",
+      "name": "Send a message1",
+      "webhookId": "ba4c5528-e4c2-48b8-bea3-b54fb32ae936",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "dq6fl5ROZhk5GQGW",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -128,
+        928
+      ],
+      "id": "fab48186-e5c1-49db-98ff-e89d5d3086c8",
+      "name": "Loop Over Items1"
+    },
+    {
+      "parameters": {
+        "content": "## Get Rows in Sheets\nGet all the rows from the sheet with contact information",
+        "height": 288,
+        "width": 192,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -416,
+        784
+      ],
+      "typeVersion": 1,
+      "id": "adeca8d3-7c0c-428f-8343-6a5a88d32b94",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## Loop over items\nOne Item each time. HTTP Request cannot verify many emails at the same time. When multiple verifications happen together, it may return empty results. That is why a loop is used to verify each email one-by-one.\n",
+        "height": 352,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -192,
+        736
+      ],
+      "typeVersion": 1,
+      "id": "ab6e127c-7900-4547-b3e2-dac641112a48",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "## HTTP Request\nThis node sends the email to the verification API to check if it is valid or not. Emailable API is used here.",
+        "height": 272,
+        "width": 288,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        64,
+        832
+      ],
+      "typeVersion": 1,
+      "id": "811e89ba-bbe2-4319-bba0-e9e77641d472",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "## Edit Fields\nThis node formats the verified data into Name, Email, and Deliverable status.",
+        "height": 224,
+        "width": 304,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        368,
+        848
+      ],
+      "typeVersion": 1,
+      "id": "35ad7507-edf1-431e-8fa0-c50670c8c306",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "## Remove Duplicates\nThis node removes duplicate email addresses so the same email is not verified twice.",
+        "height": 304,
+        "width": 224,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        64,
+        512
+      ],
+      "typeVersion": 1,
+      "id": "c01c6e29-91db-4650-8d4e-2a10e33079a0",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "content": "## Clear Sheet\nThis node clears old data from Google Sheet before adding the cleaned data.",
+        "height": 272,
+        "width": 208,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        304,
+        544
+      ],
+      "typeVersion": 1,
+      "id": "3119efc5-22b3-4521-87da-16d0eb2b7858",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "content": "## Append Row in Sheet\nThis node saves the cleaned and verified contact data back into Google Sheet from remove duplicates node .",
+        "height": 288,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        528,
+        528
+      ],
+      "typeVersion": 1,
+      "id": "524c0917-cb3d-44ef-a902-a9e99344d445",
+      "name": "Sticky Note6"
+    },
+    {
+      "parameters": {
+        "content": "## Filter\nThis node allows only deliverable emails to continue for email sending.",
+        "height": 272,
+        "width": 192,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        784,
+        544
+      ],
+      "typeVersion": 1,
+      "id": "89ba3193-0458-4206-bcc8-fcfeea4eb6cb",
+      "name": "Sticky Note7"
+    },
+    {
+      "parameters": {
+        "content": "## Mail\n\nThis node sends a confirmation email to all verified and deliverable contacts.\n",
+        "height": 272,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        992,
+        544
+      ],
+      "typeVersion": 1,
+      "id": "933431ce-2475-4509-9135-02fb358a7f9d",
+      "name": "Sticky Note8"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove Duplicates1": {
+      "main": [
+        [
+          {
+            "node": "Clear sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clear sheet1": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet1": {
+      "main": [
+        [
+          {
+            "node": "Filter1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter1": {
+      "main": [
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items1": {
+      "main": [
+        [
+          {
+            "node": "Remove Duplicates1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "674ddb75-c03a-46ad-98b0-b4e45fd6d016",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "cd003d708460345efb71b83bad2501a9d7d7576f0e119b2aebb0867ddefb1b4e"
+  },
+  "id": "1K2JixCfAmzKXGvb",
+  "tags": [
+    {
+      "updatedAt": "2025-11-17T17:35:04.366Z",
+      "createdAt": "2025-11-17T17:35:04.366Z",
+      "id": "99u4erVabNeOs3BV",
+      "name": "ostad_assignment"
+    }
+  ]
+}
