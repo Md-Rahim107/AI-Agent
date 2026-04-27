@@ -1,0 +1,611 @@
+{
+  "name": "Restaurant_ChatBot",
+  "nodes": [
+    {
+      "parameters": {
+        "public": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -2224,
+        480
+      ],
+      "id": "044b7faa-853c-488d-b416-21fb0cf95d32",
+      "name": "When chat message received",
+      "webhookId": "66b18546-4b99-451b-95f5-7cbcedf764c9"
+    },
+    {
+      "parameters": {
+        "options": {
+          "maxOutputTokens": 200
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -1872,
+        704
+      ],
+      "id": "0e33a699-9546-4944-8696-6fee72f859d4",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "tCbzldG9cEvHCwSA",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-oss-20b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        -2000,
+        704
+      ],
+      "id": "e2f3fefa-a546-4b82-b32e-b81419e96eca",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "90EalqOyoILyPsIw",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n    \"subject\": \"\",\n\t\"response\": \"\",\n\t\"email\": \"\",\n    \"mail_approve\": \"\"\n}",
+        "autoFix": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        -1248,
+        704
+      ],
+      "id": "770f6b9f-e2f6-4be9-89c5-9fe5eeff91e1",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -1744,
+        704
+      ],
+      "id": "3eee8a74-45d2-4fd0-9403-94b259c04863",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-pro",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -1136,
+        880
+      ],
+      "id": "5ecba4e2-c4e6-4196-97db-f91555df5108",
+      "name": "Google Gemini Chat Model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "tCbzldG9cEvHCwSA",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1AxtgWPRWq9aU-sOKuZNupaoA9HHjeshLUASwUqe0IVk",
+          "mode": "list",
+          "cachedResultName": "Restaurant Info",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1AxtgWPRWq9aU-sOKuZNupaoA9HHjeshLUASwUqe0IVk/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1AxtgWPRWq9aU-sOKuZNupaoA9HHjeshLUASwUqe0IVk/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        -1616,
+        704
+      ],
+      "id": "8c72d58b-94cd-4fc0-b471-3dec2b245b8c",
+      "name": "Get row(s) in sheet in Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "qavP5jPfFnGs3OUk",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1AxtgWPRWq9aU-sOKuZNupaoA9HHjeshLUASwUqe0IVk",
+          "mode": "list",
+          "cachedResultName": "Restaurant Info",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1AxtgWPRWq9aU-sOKuZNupaoA9HHjeshLUASwUqe0IVk/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1AxtgWPRWq9aU-sOKuZNupaoA9HHjeshLUASwUqe0IVk/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Name": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Name', ``, 'string') }}",
+            "Email": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Email', ``, 'string') }}",
+            "Date": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Date', ``, 'string') }}",
+            "Time": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Time', ``, 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Time",
+              "displayName": "Time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        -1472,
+        704
+      ],
+      "id": "3b2b1cb5-25dc-4337-b84b-70abeb13414b",
+      "name": "Append row in sheet in Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "qavP5jPfFnGs3OUk",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.chatInput }}",
+        "hasOutputParser": true,
+        "needsFallback": true,
+        "options": {
+          "systemMessage": "=You are an AI assistant specializing in restaurant customer support and reservations.\n\nCRITICAL RULES:\n- Respond in valid JSON format only\n- No markdown, explanations, or text outside the JSON structure\n- Use warm, polite, restaurant-friendly tone\n- Guide customers step by step\n\n---\n\nRESPONSE FORMATS:\n\n1. GENERAL MESSAGE:\n{\n  \"type\": \"message\",\n  \"text\": \"Your message here\"\n}\n\n2. COLLECTING INFORMATION:\n{\n  \"type\": \"question\",\n  \"field\": \"name|email|date|time|mail_approval\",\n  \"text\": \"Your question here\"\n}\n\n3. ASK FOR MAIL APPROVAL (after collecting time):\n{\n  \"type\": \"question\",\n  \"field\": \"mail_approval\",\n  \"text\": \"Would you like to receive a confirmation email for your reservation? Please reply with Yes or No.\"\n}\n\n4. FINAL RESERVATION CONFIRMATION (with email - when user says YES):\n{\n  \"type\": \"confirmation\",\n  \"subject\": \"Your Table Reservation is Confirmed 🍽️\",\n  \"response\": \"Dear [Name],\\n\\nThank you for choosing our restaurant!\\n\\nWe are delighted to confirm your reservation:\\n\\n📅 Date: [Date]\\n🕐 Time: [Time]\\n👤 Name: [Name]\\n\\nWe look forward to welcoming you and providing you with an exceptional dining experience.\\n\\nIf you need to make any changes to your reservation, please don't hesitate to contact us.\\n\\nBest regards,\\nRestaurant Team\",\n  \"email\": \"[customer_email]\",\n  \"mail_approve\": true\n}\n\n5. FINAL RESERVATION CONFIRMATION (without email - when user says NO):\n{\n  \"type\": \"confirmation\",\n  \"response\": \"Hello [Name], your reservation has been successfully confirmed for [Date] at [Time]. We look forward to welcoming you.\",\n  \"email\": \"[customer_email]\",\n  \"mail_approve\": false\n}\n\n---\n\nCONVERSATION FLOW:\n\nSTEP 1 - GREETING:\nWelcome the customer and offer options:\n- View the menu\n- Learn about the restaurant  \n- Reserve a seat\n\nSTEP 2 - HANDLE REQUEST:\nIF \"menu\" → Provide menu details\nIF \"restaurant info\" → Provide location, cuisine, hours, ambiance\nIF \"reserve\" → Begin reservation process\n\nSTEP 3 - RESERVATION PROCESS (collect in order):\na) Name: \"May I have your name for the reservation?\"\nb) Email: \"Please share your email address for confirmation.\"\nc) Date: \"Please enter your reservation date (DD/MM/YYYY). Example: 25/12/2025\"\nd) Time: \"Please enter your reservation time. Example: 7:00 PM\"\ne) Mail Approval: \"Would you like to receive a confirmation email for your reservation? Please reply with Yes or No.\"\n\nSTEP 4 - PROCESS MAIL APPROVAL RESPONSE:\nWhen user responds to mail approval question:\n- IF user says \"yes\", \"yeah\", \"sure\", \"ok\", \"okay\", \"send\", \"send email\", \"please\", \"yep\", \"y\" → Proceed to check email existence with mail_approve = true\n- IF user says \"no\", \"nope\", \"no thanks\", \"skip\", \"don't send\", \"not needed\", \"n\" → Proceed to check email existence with mail_approve = false\n- IF unclear response → Ask again: \"I didn't quite catch that. Would you like to receive a confirmation email? Please reply Yes or No.\"\n\nSTEP 5 - CHECK EMAIL EXISTENCE:\nAfter collecting all details AND receiving clear mail approval response, use the Google Sheets \"Get Rows\" tool to search for the customer's email address in the Email column.\n\nSTEP 6 - HANDLE RESULT:\n- IF EMAIL EXISTS (Get Rows returns matching record): \n  * Return JSON with type \"message\" and text \"I see you already have a reservation with us using this email address. Would you like to make another reservation with a different email, or modify your existing one?\"\n  * DO NOT call Append Row tool\n  \n- IF EMAIL DOES NOT EXIST (Get Rows returns no matching record):\n  * FIRST: Call the \"Append Row\" tool to add a new row with these values in order: Name, Email, Date, Time\n  * THEN: Return the appropriate confirmation JSON based on mail_approve value:\n    - IF mail_approve is true: Return FINAL RESERVATION CONFIRMATION format #4 (with email, including subject field)\n    - IF mail_approve is false: Return FINAL RESERVATION CONFIRMATION format #5 (without email, no subject field)\n\nIMPORTANT NOTES:\n- ALWAYS include the \"mail_approve\" field (true or false) in the final confirmation JSON\n- NEVER return null for mail_approve\n- The mail_approve field must be a boolean (true/false), not a string\n- Always wait for an explicit YES or NO response before proceeding to the email check\n- Include the customer's email in the final confirmation JSON regardless of the mail_approve value\n- Do NOT include the email address in the response text - only in the \"email\" field\n- When mail_approve is true, format the response as a proper email with:\n  * Professional greeting (Dear [Name])\n  * Clear reservation details with emojis for visual appeal\n  * Warm closing message\n  * Professional signature (Restaurant Team)\n  * Use \\n for line breaks in the response text\n- The system checks ONLY the email field in Google Sheets using \"Get Rows\" tool\n- Multiple reservations for the same date/time are allowed, but only one reservation per email address\n- CRITICAL: You MUST call the \"Append Row\" tool before returning the final confirmation JSON\n- The Append Row tool call happens BEFORE the JSON response, not as part of the JSON\n- Tool calling sequence: Get Rows → (if email not found) → Append Row → Return Confirmation JSON\n\nREMEMBER: Always output valid JSON only. No additional text."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        -1776,
+        480
+      ],
+      "id": "2417947a-95f7-4265-badc-514ff9ceda6c",
+      "name": "AI Agent",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "89578f8f-175d-4b69-b7c4-bde087dc3a9e",
+              "name": "output",
+              "value": "={{ $json.output.response }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -992,
+        480
+      ],
+      "id": "337530be-ac01-418c-9f04-8ac8b06f956b",
+      "name": "Edit Fields3"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "80855cbd-ebe8-4c57-b8be-bc55ca0633ef",
+              "name": "output",
+              "value": "={{ $('AI Agent').item.json.output.subject }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -320,
+        384
+      ],
+      "id": "ff1bd47e-fb01-4849-8351-3c5f77c3f55e",
+      "name": "Edit Fields4"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('AI Agent').item.json.output.email }}",
+        "subject": "={{ $('AI Agent').item.json.output.subject }}",
+        "emailType": "text",
+        "message": "={{ $('AI Agent').item.json.output.response }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -544,
+        384
+      ],
+      "id": "6bf2289b-f67b-4bf8-be83-e140bfa028b5",
+      "name": "Send a message1",
+      "webhookId": "c707e2bc-27a6-44fd-8004-472358112dd4",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "dq6fl5ROZhk5GQGW",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "fff267b1-b920-4045-bbe4-1fcb2def13de",
+              "leftValue": "={{ $('AI Agent').item.json.output.mail_approve }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -768,
+        480
+      ],
+      "id": "8163a6fe-3e79-40f3-8521-014b1d4c73ac",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "6bbd42b3-7a36-40de-a5da-e5ddb30b0139",
+              "name": "output",
+              "value": "={{ $('Edit Fields3').item.json.output }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -544,
+        576
+      ],
+      "id": "19eb697d-3e54-4c6b-a3d6-bb87b8f1d9d3",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "content": "## AI Agent \nThe message goes to the AI Agent.\n\nThe agent uses:\n\nGroq / Google Gemini models to understand and reply\n\nMemory to remember previous messages\n\nStructured Output Parser to ensure the reply is always valid JSON",
+        "height": 256,
+        "width": 448,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2128,
+        208
+      ],
+      "typeVersion": 1,
+      "id": "bbeff611-57e3-4c12-90b6-c1ac4e66a152",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## Flow of Chat Conversation\nThe AI guides the user step by step:\n\nGreets the user\nOffers options (menu, restaurant info, reserve seat)\nIf reservation is chosen, it collects:\n\nName\nEmail\nDate\nTime\n\nEmail confirmation approval",
+        "height": 288,
+        "width": 432,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1664,
+        176
+      ],
+      "typeVersion": 1,
+      "id": "8fc1b398-00ab-4c69-80ed-108971c5f92e",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "## Get Rows in Google Sheet\n\nThe AI checks Google Sheets to see if the email already exists:\n\nIf email exists → asks what the user wants to do\n\nIf email does not exist → continues reservation\n",
+        "height": 208,
+        "width": 336,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1872,
+        864
+      ],
+      "typeVersion": 1,
+      "id": "ad29f687-3285-479b-b2ae-171b89e9dcbc",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "## Append Row in Google Sheet\nIf the email is new, the reservation details are added as a new row in Google Sheets (Name, Email, Date, Time)",
+        "width": 336,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1504,
+        880
+      ],
+      "typeVersion": 1,
+      "id": "24b65154-96be-45cb-a292-4face43cea05",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "## Email\nEmail decision\n\nThe workflow checks mail_approve:\n\nYes → sends confirmation email via Gmail\n\nNo → only shows confirmation in chat",
+        "height": 208,
+        "width": 336,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -960,
+        208
+      ],
+      "typeVersion": 1,
+      "id": "0712b8f3-1f31-49dc-83a7-f58380af18bb",
+      "name": "Sticky Note4"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Structured Output Parser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet in Google Sheets": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet in Google Sheets": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields3": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "2dbfd31f-341d-4978-b85e-cdc12af77eca",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "cd003d708460345efb71b83bad2501a9d7d7576f0e119b2aebb0867ddefb1b4e"
+  },
+  "id": "kdjcW1QHihV7n8iD",
+  "tags": [
+    {
+      "updatedAt": "2025-11-17T17:35:04.366Z",
+      "createdAt": "2025-11-17T17:35:04.366Z",
+      "id": "99u4erVabNeOs3BV",
+      "name": "ostad_assignment"
+    }
+  ]
+}
