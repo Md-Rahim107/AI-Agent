@@ -1,0 +1,607 @@
+{
+  "name": "User Info Delete By Telegram",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        576
+      ],
+      "id": "7c70aeab-9ca9-4a61-bb51-44c73b692d34",
+      "name": "Telegram Trigger",
+      "webhookId": "49df60f1-6c2a-4cdb-8f0e-a72977a94bd9",
+      "credentials": {
+        "telegramApi": {
+          "id": "MYGAyUmm4Uik198l",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message.text }}",
+        "needsFallback": true,
+        "options": {
+          "systemMessage": "=You are a strict row management agent using tools: `get_rows` and `delete_row`.\nYou receive raw Telegram messages (messy or structured). Determine the user's INTENT first.\n\n---\n## INTENT DETECTION\n\n**READ-ONLY INTENTS** (never call delete_row):\n- \"Give All Orders\" → show all rows\n- \"Pending Orders\" → show rows where status is pending/not delivered\n- \"Orders Left for deliver\" → show rows where delivery is incomplete\n\n**DELETE INTENT**:\n- Message contains \"Delivered\", \"Delete\", or similar action word + identifying info\n\n---\n\n## IF READ-ONLY INTENT\n\nSTEP 1:\nCall `get_rows(\"\")` or `get_rows(\"all\")` to retrieve all rows.\n\nSTEP 2 — FILTER FIELDS:\nFrom each row, keep ONLY these 5 fields:\n- Name\n- Number (Phone)\n- Product\n- Qty (Quantity)\n- Price\n\nDiscard all other fields silently.\n\nSTEP 3 — OUTPUT based on intent:\n\n**\"Give All Orders\":**\nShow ALL rows using only the 5 fields above.\nFormat each row as:\nName: [name]\nNumber: [number]\nProduct: [product]\nQty: [qty]\nPrice: [price]\n——————————\nSummary: Total Orders: [N]\n\n**\"Pending Orders\" / \"Orders Left for deliver\":**\nFilter rows where delivery status is pending/not delivered.\nShow only those rows using the 5 fields above.\nFormat each row as:\nName: [name]\nNumber: [number]\nProduct: [product]\nQty: [qty]\nPrice: [price]\n——————————\nSummary:\n- Total Orders: [N]\n- Delivered: [X]\n- Pending / Left for Delivery: [Y]\n\n---\n\n## IF DELETE INTENT\n\n### STEP 0 — EXTRACT search_value\nExtract ONLY ONE value using priority:\n1. Phone number (preferred)\n2. Text after \"delete\" / \"delivered\"\n3. Name field\n4. Product name\n5. Otherwise most unique value\n\nRules:\n- No labels (no \"Name:\", \"Phone:\")\n- No extra text\n- Example: \"Name: Rahim, Phone: 01712345678\" → 01712345678\n\n---\n\n### EXECUTION FLOW (STRICT)\n\nSTEP 1:\nCall `get_rows(search_value)`\n→ No output yet\n\nSTEP 2:\n- Get all `row_number`\n- matched_count = total rows\n\nIF 0:\nOutput EXACTLY:\nNO MATCH. No rows found for \"[search_value]\". Nothing was deleted.\nSTOP\n\nIF ≥1 → continue\n\nSTEP 3:\nFor EACH row_number:\nCall `delete_row(row_number)`\n- One by one\n- No skipping\n- No guessing\n\nSTEP 4 — FINAL OUTPUT (ONLY AFTER ALL DELETES):\nDONE. Deleted [N] row(s) matching \"[search_value]\".\nRow number(s) removed: [r1, r2, r3, ...]\n\n---\n\n## STRICT RULES\n- NEVER call delete_row for read-only intents\n- NEVER call delete before get_rows\n- NEVER guess row numbers\n- NEVER delete extra rows\n- NEVER output early\n- NEVER add extra text\n- ALWAYS detect intent before any tool call\n- ALWAYS discard all fields except Name, Number, Product, Qty, Price when displaying rows",
+          "maxIterations": 20
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        576,
+        320
+      ],
+      "id": "2720526e-76e4-470f-b7d5-e66f42be92c2",
+      "name": "AI Agent",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-oss-120b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        448,
+        544
+      ],
+      "id": "5e3d29f2-97ef-4f50-bf41-adf86f30b1ae",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "AG6LguNNVT57IZsq",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "17QZreTu8RPjqkGRPsKDFw7z5RDGrA84u-7c75qQKrmY",
+          "mode": "list",
+          "cachedResultName": "GadgetGrid Order",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17QZreTu8RPjqkGRPsKDFw7z5RDGrA84u-7c75qQKrmY/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17QZreTu8RPjqkGRPsKDFw7z5RDGrA84u-7c75qQKrmY/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        704,
+        544
+      ],
+      "id": "e0e6ccb0-4931-46a2-bbc0-71940f676cbd",
+      "name": "Get row(s) in sheet in Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "nsdEGh1TxmRsglWT",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "documentId": {
+          "__rl": true,
+          "value": "17QZreTu8RPjqkGRPsKDFw7z5RDGrA84u-7c75qQKrmY",
+          "mode": "list",
+          "cachedResultName": "GadgetGrid Order",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17QZreTu8RPjqkGRPsKDFw7z5RDGrA84u-7c75qQKrmY/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17QZreTu8RPjqkGRPsKDFw7z5RDGrA84u-7c75qQKrmY/edit#gid=0"
+        },
+        "startIndex": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Start_Row_Number', `Model will give which row to delete`, 'number') }}",
+        "numberToDelete": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Number_of_Rows_to_Delete', `Model will tell how many rows to delete\n`, 'number') }}"
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        832,
+        544
+      ],
+      "id": "1e683298-18bc-4f58-9133-e1449e49365e",
+      "name": "Delete rows or columns from sheet in Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "nsdEGh1TxmRsglWT",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        576,
+        544
+      ],
+      "id": "c360072e-0551-4469-935c-b6644667bf83",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "IpLMhsykxTw40I7A",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "=1153426888",
+        "text": "= {{ $json.output }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1040,
+        432
+      ],
+      "id": "2ee2ca06-fc9b-4d75-8f05-e1191caf25c6",
+      "name": "Send a text message",
+      "webhookId": "e26a1039-419c-49fb-a795-c4e2a55813b3",
+      "retryOnFail": true,
+      "credentials": {
+        "telegramApi": {
+          "id": "MYGAyUmm4Uik198l",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "qdrantCollection": {
+          "__rl": true,
+          "value": "n8n-batch",
+          "mode": "list",
+          "cachedResultName": "n8n-batch"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreQdrant",
+      "typeVersion": 1.3,
+      "position": [
+        1744,
+        720
+      ],
+      "id": "dbbefea3-0df4-4cf7-8d36-875c5be8a8bc",
+      "name": "Qdrant Vector Store",
+      "credentials": {
+        "qdrantApi": {
+          "id": "jEX8UxX6MXeCdmTx",
+          "name": "QdrantApi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-embedding-001"
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        1712,
+        944
+      ],
+      "id": "5cd12b3d-e015-491b-a26d-22f7b4eaabf0",
+      "name": "Embeddings Google Gemini",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "IpLMhsykxTw40I7A",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "dataType": "binary",
+        "textSplittingMode": "custom",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1.1,
+      "position": [
+        1840,
+        944
+      ],
+      "id": "49bb89dc-b686-4b47-a660-a4dfc8b3a9bc",
+      "name": "Default Data Loader"
+    },
+    {
+      "parameters": {
+        "chunkOverlap": 200,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+      "typeVersion": 1,
+      "position": [
+        1920,
+        1152
+      ],
+      "id": "76d44764-81e4-40f2-9da9-b4a48aa8563e",
+      "name": "Recursive Character Text Splitter"
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1264,
+        720
+      ],
+      "id": "e8751d2d-1844-4dc8-911d-82b1beb2ce03",
+      "name": "Download file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "mRNfSymJoheSXXLa",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        1488,
+        720
+      ],
+      "id": "e12d0dc3-583f-4839-9858-789d5d722285",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "inputDataFieldName": "=data",
+        "name": "={{ $('Telegram Trigger').item.json.message.document.file_name }}",
+        "driveId": {
+          "__rl": true,
+          "value": "My Drive",
+          "mode": "list",
+          "cachedResultName": "My Drive",
+          "cachedResultUrl": "https://drive.google.com/drive/my-drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1cRXpb3yxnflW8YkMb-SnyGzsKOUOeGmY",
+          "mode": "list",
+          "cachedResultName": "n8n",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1cRXpb3yxnflW8YkMb-SnyGzsKOUOeGmY"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1040,
+        720
+      ],
+      "id": "724206b7-2316-4ba4-bcb8-b557f7791fef",
+      "name": "Upload file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "mRNfSymJoheSXXLa",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "6e847b36-2038-470b-906f-f201abdbb6e4",
+              "leftValue": "={{ $json.message.document }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        224,
+        576
+      ],
+      "id": "2c30587c-fb3b-41f2-b7df-816e97138a19",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "fileId": "={{ $('Telegram Trigger').item.json.message.document.file_id }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        640,
+        720
+      ],
+      "id": "47eb4dc9-e6ec-43c9-9ad3-eb165019b6ae",
+      "name": "Get a file",
+      "webhookId": "e74b6a2c-4c03-4f9d-a4dd-01688101e551",
+      "retryOnFail": true,
+      "credentials": {
+        "telegramApi": {
+          "id": "MYGAyUmm4Uik198l",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "1153426888",
+        "text": "Done",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2096,
+        720
+      ],
+      "id": "198d3b97-977d-475b-a2e2-48f559219ae3",
+      "name": "Send a text message1",
+      "webhookId": "9c41e6da-68c7-4bbe-b780-9930db7c3f90",
+      "credentials": {
+        "telegramApi": {
+          "id": "MYGAyUmm4Uik198l",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet in Google Sheets": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete rows or columns from sheet in Google Sheets": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Google Gemini": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Qdrant Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Qdrant Vector Store",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recursive Character Text Splitter": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "Default Data Loader",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Qdrant Vector Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload file": {
+      "main": [
+        [
+          {
+            "node": "Download file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Get a file",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a file": {
+      "main": [
+        [
+          {
+            "node": "Upload file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Qdrant Vector Store": {
+      "main": [
+        [
+          {
+            "node": "Send a text message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": "L1wrhjYVQVFS3brV"
+  },
+  "versionId": "d35bcb51-ecb3-4cef-a777-90c22b657081",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "574b9c83125ceee43826b2c8ff2e9c3b344bef6dd0ea5b451e3789ea4539d04c"
+  },
+  "id": "gO2aEquiGezhLMjs",
+  "tags": [
+    {
+      "updatedAt": "2026-04-16T18:01:48.441Z",
+      "createdAt": "2026-04-16T18:01:48.441Z",
+      "id": "2ZeI46GZZCJXNaeh",
+      "name": "SAAS Project"
+    }
+  ]
+}
