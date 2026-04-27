@@ -1,0 +1,339 @@
+{
+  "name": "Google Sheet MCP Server",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "c424f218-8925-40a8-b9cc-ea4c44e290b9"
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpTrigger",
+      "typeVersion": 2,
+      "position": [
+        64,
+        0
+      ],
+      "id": "731b13a1-9470-40cd-a5b0-eb01141c810f",
+      "name": "MCP Server Trigger",
+      "webhookId": "c424f218-8925-40a8-b9cc-ea4c44e290b9"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1IIRAdc7D0UasQjxPOtRlUMF78gJosXc24Bnwi_NtU8s",
+          "mode": "list",
+          "cachedResultName": "MCP_Calendar_Log",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1IIRAdc7D0UasQjxPOtRlUMF78gJosXc24Bnwi_NtU8s/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1IIRAdc7D0UasQjxPOtRlUMF78gJosXc24Bnwi_NtU8s/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        0,
+        224
+      ],
+      "id": "fa30203f-656e-454a-ad99-17b714b53241",
+      "name": "Get Calender Information",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "nsdEGh1TxmRsglWT",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1IIRAdc7D0UasQjxPOtRlUMF78gJosXc24Bnwi_NtU8s",
+          "mode": "list",
+          "cachedResultName": "MCP_Calendar_Log",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1IIRAdc7D0UasQjxPOtRlUMF78gJosXc24Bnwi_NtU8s/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1IIRAdc7D0UasQjxPOtRlUMF78gJosXc24Bnwi_NtU8s/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "title": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('title', ``, 'string') }}",
+            "frequency": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('frequency', ``, 'string') }}",
+            "start": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('start', ``, 'string') }}",
+            "end": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('end', ``, 'string') }}",
+            "Attendees": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Attendees', ``, 'string') }}",
+            "description": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('description', ``, 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "title",
+              "displayName": "title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "frequency",
+              "displayName": "frequency",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "start",
+              "displayName": "start",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "end",
+              "displayName": "end",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Attendees",
+              "displayName": "Attendees",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "description",
+              "displayName": "description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        128,
+        224
+      ],
+      "id": "5d976656-9bc0-4246-8c04-5818ebe3b26e",
+      "name": "Add Calender Information",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "nsdEGh1TxmRsglWT",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1IIRAdc7D0UasQjxPOtRlUMF78gJosXc24Bnwi_NtU8s",
+          "mode": "list",
+          "cachedResultName": "MCP_Calendar_Log",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1IIRAdc7D0UasQjxPOtRlUMF78gJosXc24Bnwi_NtU8s/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1IIRAdc7D0UasQjxPOtRlUMF78gJosXc24Bnwi_NtU8s/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "title": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('title', ``, 'string') }}",
+            "frequency": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('frequency', ``, 'string') }}",
+            "start": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('start', ``, 'string') }}",
+            "end": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('end', ``, 'string') }}",
+            "Attendees": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Attendees', ``, 'string') }}",
+            "description": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('description', ``, 'string') }}"
+          },
+          "matchingColumns": [
+            "title"
+          ],
+          "schema": [
+            {
+              "id": "title",
+              "displayName": "title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "frequency",
+              "displayName": "frequency",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "start",
+              "displayName": "start",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "end",
+              "displayName": "end",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Attendees",
+              "displayName": "Attendees",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "description",
+              "displayName": "description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        256,
+        224
+      ],
+      "id": "7234dbae-da3d-494c-9392-e7b76736bfa9",
+      "name": "Update Calender Information",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "nsdEGh1TxmRsglWT",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "# Google Sheet MCP Server\n- Purpose: Log event data\n- Steps:\n  1. Create new workflow in n8n\n  2. Add MCP Server Trigger node\n  3. Add Google Sheets node\n  4. Configure operations:\n     - Insert Row\n     - Update Row\n     - Get Row (optional)\n  5. Use sheet with columns:\n     title | frequency | start | end | attendees | description\n  6. Activate workflow\n- Tool Name: Google Sheet",
+        "height": 448,
+        "width": 416
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        352,
+        -128
+      ],
+      "typeVersion": 1,
+      "id": "d5a2b8b5-de31-4dd7-afdc-b2e9734d7f29",
+      "name": "Sticky Note"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Get Calender Information": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add Calender Information": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Calender Information": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "7119b81b-029d-4777-ae07-3080f3dcf314",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "574b9c83125ceee43826b2c8ff2e9c3b344bef6dd0ea5b451e3789ea4539d04c"
+  },
+  "id": "sj1i9sRiXHzdtLt3",
+  "tags": [
+    {
+      "updatedAt": "2026-01-28T15:36:08.946Z",
+      "createdAt": "2026-01-28T15:36:08.946Z",
+      "id": "eHuBVytylq44VyCu",
+      "name": "MCP"
+    },
+    {
+      "updatedAt": "2026-01-01T19:53:19.024Z",
+      "createdAt": "2026-01-01T19:53:19.024Z",
+      "id": "gCFYFcDtHCfhjyGW",
+      "name": "ostad_assignment"
+    }
+  ]
+}
