@@ -1,1 +1,471 @@
 
+{
+  "name": "Company Document Insert",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Upload Data ",
+        "formDescription": "Upload your data",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Upload your data here.",
+              "fieldType": "file",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.3,
+      "position": [
+        -2176,
+        976
+      ],
+      "id": "f6999094-0735-4d6b-8218-eec33e8249a5",
+      "name": "On form submission",
+      "webhookId": "0d1277a2-d4e7-4c4b-ae58-53dd6f287230"
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "qdrantCollection": {
+          "__rl": true,
+          "value": "CustomerSupport",
+          "mode": "list",
+          "cachedResultName": "CustomerSupport"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreQdrant",
+      "typeVersion": 1.3,
+      "position": [
+        -1248,
+        976
+      ],
+      "id": "207f720a-5a3a-48e5-9dfc-9822f41ca5cf",
+      "name": "Qdrant Vector Store",
+      "credentials": {
+        "qdrantApi": {
+          "id": "jEX8UxX6MXeCdmTx",
+          "name": "QdrantApi account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -1296,
+        1248
+      ],
+      "id": "f2a15e24-eda9-40c8-98e4-85ed8aef4b5e",
+      "name": "Embeddings Google Gemini",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "IpLMhsykxTw40I7A",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "dataType": "binary",
+        "textSplittingMode": "custom",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1.1,
+      "position": [
+        -1040,
+        1232
+      ],
+      "id": "c502e377-d9c0-4373-9726-d82047e77710",
+      "name": "Default Data Loader"
+    },
+    {
+      "parameters": {
+        "chunkOverlap": 200,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+      "typeVersion": 1,
+      "position": [
+        -1104,
+        1504
+      ],
+      "id": "3edb5079-584a-4c18-bb54-6b5e3c8a506d",
+      "name": "Recursive Character Text Splitter"
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -1728,
+        976
+      ],
+      "id": "3fb6650d-4633-413c-ae81-56334140df6f",
+      "name": "Download file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "mRNfSymJoheSXXLa",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -1504,
+        976
+      ],
+      "id": "86155215-0e60-4c1b-942d-7884b6e010d1",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "inputDataFieldName": "=Upload_your_data_here_",
+        "name": "={{ $json[\"Upload your data here.\"][0].filename }}",
+        "driveId": {
+          "__rl": true,
+          "value": "My Drive",
+          "mode": "list",
+          "cachedResultName": "My Drive",
+          "cachedResultUrl": "https://drive.google.com/drive/my-drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1cRXpb3yxnflW8YkMb-SnyGzsKOUOeGmY",
+          "mode": "list",
+          "cachedResultName": "n8n",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1cRXpb3yxnflW8YkMb-SnyGzsKOUOeGmY"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -1936,
+        976
+      ],
+      "id": "ccbb3a60-e0dc-44d1-ab9b-a3680daa7867",
+      "name": "Upload file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "mRNfSymJoheSXXLa",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "This form triggers the workflow when a user uploads a file. The uploaded file is passed to the next nodes for processing.",
+        "height": 224,
+        "width": 256,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -2256,
+        880
+      ],
+      "id": "6a02140f-9d93-4e1b-813e-40a680d531f2",
+      "name": "Note: Form Trigger"
+    },
+    {
+      "parameters": {
+        "content": "Uploads the received file from the form submission into a specific Google Drive folder.",
+        "height": 240,
+        "width": 208,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1984,
+        880
+      ],
+      "id": "2354a957-3c1f-471b-849e-2d10de2a02bb",
+      "name": "Note: Upload File"
+    },
+    {
+      "parameters": {
+        "content": "Downloads the uploaded file from Google Drive so it can be processed locally in the workflow.",
+        "height": 224,
+        "width": 192,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1760,
+        880
+      ],
+      "id": "b0c68020-3857-4fa8-b6bd-f6a38766985f",
+      "name": "Note: Download File"
+    },
+    {
+      "parameters": {
+        "content": "Loops through each downloaded file item so documents can be processed one by one.",
+        "height": 224,
+        "width": 192,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1552,
+        880
+      ],
+      "id": "fae88989-d36a-43bc-aae0-fd4b334e89ae",
+      "name": "Note: Loop Over Items"
+    },
+    {
+      "parameters": {
+        "content": "Loads binary files and converts them into text documents that can be embedded.",
+        "height": 240,
+        "width": 336,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1120,
+        1136
+      ],
+      "id": "36ad43ed-20ba-4959-9eb5-e77705f59e0b",
+      "name": "Note: Data Loader"
+    },
+    {
+      "parameters": {
+        "content": "Generates vector embeddings from text using Google Gemini so the data can be stored in a vector database.",
+        "height": 304,
+        "width": 192,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1376,
+        1120
+      ],
+      "id": "d89fc302-a8f8-4b6f-9c99-2f85af4f40db",
+      "name": "Note: Embeddings"
+    },
+    {
+      "parameters": {
+        "content": "Stores document embeddings into the Qdrant vector database for later semantic search or retrieval.",
+        "height": 224,
+        "width": 384,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1328,
+        880
+      ],
+      "id": "ea8b1be9-8bb8-4051-99ba-7f92f0a44c9c",
+      "name": "Note: Qdrant Store"
+    },
+    {
+      "parameters": {
+        "content": "Used Only To Create Collection. Once Created it is better to disconnect\n",
+        "height": 208,
+        "width": 368,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2064,
+        656
+      ],
+      "typeVersion": 1,
+      "id": "24abef4a-067d-48a5-973b-56e18e6274e7",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## Details\n#### This workflow accepts a document uploaded through a form, saves it to Google Drive so the file is stored permanently and can be reliably accessed, then downloads it back into the workflow to ensure stable binary input for processing; the file is then split into smaller text chunks, converted into embeddings using Google Gemini, and finally stored in a Qdrant vector database for semantic search or AI retrieval, with Google Drive specifically used to avoid temporary file loss, enable reprocessing, and ensure consistent document handling across executions. RAG System is on Company Policy And Also Company's  employee leave policy\n",
+        "height": 240,
+        "width": 784
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2240,
+        1152
+      ],
+      "typeVersion": 1,
+      "id": "b32d4245-a7ec-44a0-a09b-a35c81d99095",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "=https://76625497-16ab-4109-ab8f-f09c051cc1dc.eu-west-2-0.aws.cloud.qdrant.io:6333/collections/CustomerSupport",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "api-key",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2Nlc3MiOiJtIn0.1ki2hOA2LiTOXb92AAh9HO0KT6Z_f8zs-ZJdo83TxrA"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"vectors\": {\n    \"size\": 768,\n    \"distance\": \"Cosine\"\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -1936,
+        720
+      ],
+      "id": "dad05345-3cd8-48e7-b1a8-c46c82c070df",
+      "name": "Create Collection"
+    },
+    {
+      "parameters": {
+        "content": "Splits the document text into smaller overlapping chunks so embeddings work efficiently.",
+        "height": 240,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1184,
+        1392
+      ],
+      "id": "41a3aad2-9a18-4d25-bf9d-42dc1e58b49b",
+      "name": "Note: Text Splitter"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Upload file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Google Gemini": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Qdrant Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Qdrant Vector Store",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recursive Character Text Splitter": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "Default Data Loader",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Qdrant Vector Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Qdrant Vector Store": {
+      "main": [
+        []
+      ]
+    },
+    "Upload file": {
+      "main": [
+        [
+          {
+            "node": "Download file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Collection": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "0a22e785-376b-4b45-b9f4-8666d5bc539e",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "574b9c83125ceee43826b2c8ff2e9c3b344bef6dd0ea5b451e3789ea4539d04c"
+  },
+  "id": "PHlUdcG5ojA6dpmH",
+  "tags": [
+    {
+      "updatedAt": "2026-01-01T19:53:19.024Z",
+      "createdAt": "2026-01-01T19:53:19.024Z",
+      "id": "gCFYFcDtHCfhjyGW",
+      "name": "ostad_assignment"
+    }
+  ]
+}
