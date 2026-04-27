@@ -1,0 +1,163 @@
+{
+  "name": "Error Workflow",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        32
+      ],
+      "id": "cb2be3e9-d502-4c5b-b330-4c3e178d39b7",
+      "name": "Error Trigger"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1noi5lCM9xPXC2l_n9RwFsFFyfORIyNfm0AJ_3laPwdQ",
+          "mode": "list",
+          "cachedResultName": "Restaurent Lead Gen",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1noi5lCM9xPXC2l_n9RwFsFFyfORIyNfm0AJ_3laPwdQ/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 510983034,
+          "mode": "list",
+          "cachedResultName": "Sheet2",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1noi5lCM9xPXC2l_n9RwFsFFyfORIyNfm0AJ_3laPwdQ/edit#gid=510983034"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Error Message": "={{ $json.execution.error.message }}",
+            "Error Url": "={{ $json.execution.url }}",
+            "StackTrace": "={{ $json.execution.error.stack }}",
+            "wrokflow name": "={{ $json.workflow.name }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Error Message",
+              "displayName": "Error Message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Error Url",
+              "displayName": "Error Url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "StackTrace",
+              "displayName": "StackTrace",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "wrokflow name",
+              "displayName": "wrokflow name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        224,
+        32
+      ],
+      "id": "5dc2676c-01d7-44e3-99fe-12f8ea27a834",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "nsdEGh1TxmRsglWT",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "mdrahimuddin107@gmail.com",
+        "subject": "Error",
+        "message": "={{ $json[\"wrokflow name\"] }}<br>\n{{ $json[\"Error Message\"] }}<br>\n{{ $json[\"Error Url\"] }}<br>\n{{ $json.StackTrace }}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        432,
+        32
+      ],
+      "id": "992a498f-c35e-48e3-ad9e-6ccec797e596",
+      "name": "Send a message",
+      "webhookId": "79e9423f-8337-477b-8046-1f0751237d73",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "TphrhsvBh8EyXO2n",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner",
+    "executionTimeout": -1
+  },
+  "versionId": "8860c1bc-48ea-4bb3-8118-1399e8f58534",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "574b9c83125ceee43826b2c8ff2e9c3b344bef6dd0ea5b451e3789ea4539d04c"
+  },
+  "id": "oUwNl3rwuLqqdq5V",
+  "tags": []
+}
